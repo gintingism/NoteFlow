@@ -79,7 +79,7 @@ pub fn trigger_audio_permission() -> Result<bool> {
     fn build_noop<T: cpal::SizedSample>(
         device: &cpal::Device,
         config: cpal::StreamConfig,
-    ) -> std::result::Result<cpal::Stream, cpal::BuildStreamError> {
+    ) -> std::result::Result<cpal::Stream, cpal::Error> {
         device.build_input_stream(
             config,
             |_data: &[T], _: &cpal::InputCallbackInfo| {

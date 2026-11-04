@@ -120,15 +120,6 @@ impl AudioStream {
         info!("Audio config - Sample rate: {}, Channels: {}, Format: {:?}",
               config.sample_rate(), config.channels(), config.sample_format());
 
-        // Create audio capture processor
-        let capture = AudioCapture::new(
-            device.clone(),
-            state.clone(),
-            config.sample_rate(),
-            config.channels(),
-            device_type,
-        );
-
         // On Windows, when capturing system audio via WASAPI loopback (DeviceType::System),
         // also open a silent output render stream (IAudioRenderClient) on the same output
         // device so Windows 11 Volume Mixer keeps the app's slider enabled at 100% (not
@@ -156,6 +147,15 @@ impl AudioStream {
         } else {
             None
         };
+
+        // Create audio capture processor
+        let capture = AudioCapture::new(
+            device.clone(),
+            state.clone(),
+            config.sample_rate(),
+            config.channels(),
+            device_type,
+        );
 
         // Build the appropriate stream based on sample format
         let stream = Self::build_stream(&cpal_device, &config, capture.clone())?;

@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Result};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::Sample;
 use log::{debug, info, warn};
 use std::sync::atomic::{AtomicBool, Ordering};
 
