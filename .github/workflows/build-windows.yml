@@ -675,13 +675,26 @@ jobs:
           path: frontend/src-tauri/binaries/ffmpeg-*.exe
           key: ${{ runner.os }}-ffmpeg-${{ hashFiles('frontend/src-tauri/build.rs', 'frontend/src-tauri/build/ffmpeg.rs') }}
 
+      - name: Configure updater signing environment
+        shell: pwsh
+        env:
+          SIGNING_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          if ($env:SIGNING_KEY -and $env:SIGNING_KEY.Trim() -ne "") {
+            Write-Host "Configuring updater signing key..."
+            "TAURI_SIGNING_PRIVATE_KEY=$($env:SIGNING_KEY)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            if ($env:SIGNING_KEY_PASSWORD) {
+              "TAURI_SIGNING_PRIVATE_KEY_PASSWORD=$($env:SIGNING_KEY_PASSWORD)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            }
+          } else {
+            Write-Host "No updater signing key found, skipping updater signing."
+          }
+
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Tauri updater signing (ALWAYS enabled for .sig files)
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           # Supabase configuration (for online license verification)
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
