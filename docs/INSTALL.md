@@ -1,6 +1,6 @@
-# Installing Conversationaly
+# Installing Noteflow
 
-Prebuilt installers are on the [Releases page](https://github.com/bykof/conversationaly/releases).
+Prebuilt installers are on the [Releases page](https://github.com/gintingism/conversationaly/releases) or downloadable directly as build artifacts from [GitHub Actions](https://github.com/gintingism/conversationaly/actions/workflows/build-windows.yml).
 
 | Platform | File |
 | --- | --- |
@@ -83,8 +83,8 @@ Unblock-File .\conversationaly_1.3.0_x64-setup.exe
 ### Scoop
 
 ```powershell
-scoop bucket add conversationaly https://github.com/bykof/conversationaly
-scoop install conversationaly
+scoop bucket add noteflow https://github.com/gintingism/conversationaly
+scoop install noteflow
 ```
 
 ### If Windows refuses outright

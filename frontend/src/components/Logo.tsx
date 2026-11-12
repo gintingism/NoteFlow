@@ -5,14 +5,9 @@ import { About } from './About';
 import { cn } from '@/lib/utils';
 
 /**
- * The mark is an aperture: a closed ring with a single gap, solid centre. It
- * reads as the "C" monogram and as a record button, and the closed loop is the
- * privacy claim — audio goes in, nothing leaves. The centre dot turns red while
- * recording, so the brand mark *is* the live indicator rather than a decoration
- * sitting next to one.
- *
- * Same geometry as src-tauri/app-icon.svg, which generates the app icons. Edit
- * both, or the dock and the sidebar drift apart.
+ * Noteflow brand mark: A continuous geometric wave forming an "N" monogram
+ * and an audio pulse waveform with a central live recording core.
+ * The core illuminates in red when recording is active.
  */
 export function Mark({
   live = false,
@@ -29,18 +24,18 @@ export function Mark({
       className={cn('h-5 w-5', className)}
     >
       <path
-        d="M18.28 6.73A8.2 8.2 0 1 0 18.28 17.27"
+        d="M5.5 19V5C5.5 5 7.5 11 12 12.5C16.5 14 18.5 19 18.5 19V5"
         stroke="currentColor"
-        strokeWidth={2.8}
+        strokeWidth={2.6}
         strokeLinecap="round"
-        fill="none"
+        strokeLinejoin="round"
       />
       <circle
         cx={12}
-        cy={12}
-        r={3.4}
-        className={cn(live ? 'fill-danger' : 'fill-current', live && 'animate-live')}
-        style={{ transformOrigin: '12px 12px' }}
+        cy={12.5}
+        r={2.8}
+        className={cn(live ? 'fill-danger animate-live' : 'fill-brand')}
+        style={{ transformOrigin: '12px 12.5px' }}
       />
     </svg>
   );

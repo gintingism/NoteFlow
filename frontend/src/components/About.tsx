@@ -11,10 +11,11 @@ import { toast } from 'sonner';
 
 /** What the product actually guarantees, as facts rather than pitch. */
 const FACTS = [
-  ['Audio', 'Captured and mixed on this machine'],
-  ['Transcription', 'transcribe.cpp, running locally'],
-  ['Summaries', 'A local model by default; external providers are opt-in'],
-  ['Storage', 'A local database and audio files you own'],
+  ['Audio', 'Captured and mixed on this machine without mixer attenuation'],
+  ['Transcription', 'transcribe.cpp with Eco, Balanced & Max presets'],
+  ['Model Hub', 'Direct Hugging Face search & 1-click GGUF download'],
+  ['Summaries', 'Local Gemma/Qwen sidecar; external providers opt-in'],
+  ['Storage', 'Local SQLite database & audio files you own 100%'],
 ] as const;
 
 export function About() {
@@ -89,22 +90,47 @@ export function About() {
         <ConsoleToggle />
       </div>
 
-      {/* Upstream attribution. Conversationaly is a fork of Meetily; the credit
-          stays regardless of what the product is called. */}
-      <p className="mt-4 text-xs leading-relaxed text-ink-faint">
-        Built on{' '}
-        <button
-          onClick={() =>
-            invoke('open_external_url', {
-              url: 'https://github.com/Zackriya-Solutions/meeting-minutes',
-            }).catch(console.error)
-          }
-          className="underline underline-offset-2 transition-colors duration-fast hover:text-ink-muted"
-        >
-          Meetily
-        </button>{' '}
-        by Zackriya Solutions.
-      </p>
+      {/* Lineage & attribution */}
+      <div className="mt-5 space-y-2 border-t border-ink-faint/15 pt-4 text-xs leading-relaxed text-ink-faint">
+        <p>
+          <span className="font-medium text-ink">Noteflow</span> is maintained & enhanced by{' '}
+          <button
+            onClick={() =>
+              invoke('open_external_url', {
+                url: 'https://github.com/gintingism/conversationaly',
+              }).catch(console.error)
+            }
+            className="font-semibold text-ink underline underline-offset-2 transition-colors duration-fast hover:text-brand"
+          >
+            Neguisa Ginting (@gintingism)
+          </button>.
+        </p>
+        <p>
+          Forked and optimized from{' '}
+          <button
+            onClick={() =>
+              invoke('open_external_url', {
+                url: 'https://github.com/bykof/conversationaly',
+              }).catch(console.error)
+            }
+            className="underline underline-offset-2 transition-colors duration-fast hover:text-ink-muted"
+          >
+            Conversationaly
+          </button>{' '}
+          by Sujith S, which was originally built upon{' '}
+          <button
+            onClick={() =>
+              invoke('open_external_url', {
+                url: 'https://github.com/Zackriya-Solutions/meeting-minutes',
+              }).catch(console.error)
+            }
+            className="underline underline-offset-2 transition-colors duration-fast hover:text-ink-muted"
+          >
+            Meetily
+          </button>{' '}
+          by Zackriya Solutions under the MIT License.
+        </p>
+      </div>
 
       <UpdateDialog
         open={showUpdateDialog}
