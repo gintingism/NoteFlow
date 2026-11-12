@@ -465,3 +465,96 @@ pub fn transcribe_builtin_models() -> Vec<BuiltinTranscribeModel> {
 pub async fn transcribe_model_languages() -> Result<Option<Vec<String>>, String> {
     Ok(engine()?.model_languages().await)
 }
+
+/// Search Hugging Face Hub for ASR / transcription GGUF models.
+#[command]
+pub async fn transcribe_search_hf(
+    query: String,
+    limit: Option<usize>,
+) -> Result<Vec<crate::transcribe_engine::hf_hub::HfModelItem>, String> {
+    let limit = limit.unwrap_or(20);
+    crate::transcribe_engine::hf_hub::search_hf_models(&query, limit)
+        .await
+        .map_err(|e| format!("Failed to search Hugging Face: {}", e))
+}
+
+/// Get the list of downloadable GGUF files in a Hugging Face repository.
+#[command]
+pub async fn transcribe_get_hf_repo_files(
+    repo: String,
+) -> Result<Vec<crate::transcribe_engine::hf_hub::HfFileItem>, String> {
+    crate::transcribe_engine::hf_hub::get_hf_repo_files(&repo)
+        .await
+        .map_err(|e| format!("Failed to list repository files: {}", e))
+}
+
+/// Download any GGUF transcription model directly from Hugging Face Hub.
+#[command]
+pub async fn transcribe_download_hf_model<R: Runtime>(
+    app_handle: AppHandle<R>,
+    repo: String,
+    filename: String,
+    display_name: Option<String>,
+) -> Result<(), String> {
+    transcribe_init().await?;
+    let engine = engine()?;
+
+    let model_name = display_name
+        .unwrap_or_else(|| filename.trim_end_matches(".gguf").to_string());
+
+    let app_for_progress = app_handle.clone();
+    let name_for_progress = model_name.clone();
+    let progress_callback = Box::new(move |p: crate::transcribe_engine::engine::DownloadProgress| {
+        let _ = app_for_progress.emit(
+            "model-download-progress",
+            serde_json::json!({
+                "modelName": name_for_progress,
+                "progress": p.percent,
+                "downloaded_mb": p.downloaded_mb,
+                "total_mb": p.total_mb,
+                "speed_mbps": p.speed_mbps,
+                "status": if p.percent >= 100 { "completed" } else { "downloading" },
+            }),
+        );
+    });
+
+    match engine.download_file(&model_name, &repo, &filename, Some(progress_callback)).await {
+        Ok(()) => {
+            let _ = app_handle.emit(
+                "model-download-complete",
+                serde_json::json!({ "modelName": model_name }),
+            );
+            Ok(())
+        }
+        Err(e) => {
+            let _ = app_handle.emit(
+                "model-download-error",
+                serde_json::json!({ "modelName": model_name, "error": e.to_string() }),
+            );
+            Err(format!("Failed to download Hugging Face model: {}", e))
+        }
+    }
+}
+
+/// Import an existing local GGUF file from the disk into the models directory.
+#[command]
+pub async fn transcribe_import_local_model(
+    source_path: String,
+) -> Result<String, String> {
+    let models_dir = get_models_directory()
+        .ok_or_else(|| "Models directory not initialized".to_string())?;
+
+    let path = std::path::Path::new(&source_path);
+    let imported_path = crate::transcribe_engine::hf_hub::import_local_gguf(path, &models_dir)
+        .await
+        .map_err(|e| format!("Failed to import local model: {}", e))?;
+
+    let filename = imported_path
+        .file_name()
+        .and_then(|f| f.to_str())
+        .unwrap_or("")
+        .trim_end_matches(".gguf")
+        .to_string();
+
+    Ok(filename)
+}

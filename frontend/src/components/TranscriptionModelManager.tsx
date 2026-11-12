@@ -32,10 +32,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Search } from 'lucide-react';
+import { Search, Layers, X, FolderOpen, Award, Sparkles, Zap, Trash2, CheckCircle2, Download as DownloadIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { languageHaystack, languageNames, languagesSummary } from '@/lib/languages';
 import { cn } from '@/lib/utils';
+import { HardwareProfileSelector } from './HardwareProfileSelector';
+import { HuggingFaceModelHub } from './HuggingFaceModelHub';
 
 interface Props {
   selectedModel?: string;
@@ -50,6 +52,7 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
   const [sort, setSort] = useState<ModelSort>('catalog');
   const [query, setQuery] = useState('');
   const [installedOnly, setInstalledOnly] = useState(false);
+  const [showHfHub, setShowHfHub] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -135,10 +138,16 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span>{getModelIcon(model.accuracy)}</span>
-              <span className="font-medium">{getModelLabel(model.name)}</span>
+              {model.accuracy === 'High' ? (
+                <Award className="size-4 text-brand shrink-0" strokeWidth={1.75} />
+              ) : model.accuracy === 'Good' ? (
+                <Sparkles className="size-4 text-info-ink shrink-0" strokeWidth={1.75} />
+              ) : (
+                <Zap className="size-4 text-amber-500 shrink-0" strokeWidth={1.75} />
+              )}
+              <span className="font-semibold text-ink text-sm font-mono tracking-tight">{getModelLabel(model.name)}</span>
               <span
-                className={`rounded-full px-2 py-0.5 text-xs ${
+                className={`rounded-full px-2 py-0.5 text-3xs font-mono font-medium ${
                   model.streaming
                     ? 'bg-brand-soft text-brand-soft-ink'
                     : 'bg-warn-soft text-warn-ink'
@@ -149,7 +158,7 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
               {model.diarizes && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="cursor-default rounded-full border border-line px-2 py-0.5 text-xs text-ink-muted">
+                    <span className="cursor-default rounded-full border border-line px-2 py-0.5 text-3xs font-mono text-ink-muted">
                       Labels speakers
                     </span>
                   </TooltipTrigger>
@@ -160,51 +169,46 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
                 </Tooltip>
               )}
               {model.recommended && (
-                <span className="rounded-full bg-info-soft px-2 py-0.5 text-xs text-info-ink">
+                <span className="rounded-full bg-info-soft px-2 py-0.5 text-3xs font-mono text-info-ink font-medium">
                   Recommended
                 </span>
               )}
             </div>
-            <p className="mt-1 text-sm text-ink-muted">{model.description}</p>
-            <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
+            <p className="mt-1 text-xs text-ink-muted leading-relaxed">{model.description}</p>
+            <dl className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted font-mono">
               <div className="flex gap-1">
-                <dt>Quality</dt>
+                <dt className="text-ink-faint">Quality:</dt>
                 <dd className="font-medium text-ink">{model.accuracy}</dd>
               </div>
               {model.wer !== null && (
                 <div className="flex gap-1">
-                  <dt>WER</dt>
-                  <dd className="readout text-ink">
+                  <dt className="text-ink-faint">WER:</dt>
+                  <dd className="readout text-ink font-semibold">
                     <Tooltip>
                       <TooltipTrigger className="cursor-help underline decoration-dotted underline-offset-2">
                         {model.wer.toFixed(2)}%
                       </TooltipTrigger>
-                      {/* The set is in the tooltip, not the row, because the row has
-                          to stay scannable across 86 models — but it is one hover
-                          away, because 1.27% on English read speech and 8.40% on
-                          Russian are not two points on the same scale. */}
                       <TooltipContent side="top">
                         Word error rate on {model.wer_set}, measured by transcribe.cpp.
-                        Lower is better, and only comparable against other models on
-                        the same set — not against your meetings.
+                        Lower is better.
                       </TooltipContent>
                     </Tooltip>
                   </dd>
                 </div>
               )}
               <div className="flex gap-1">
-                <dt>Speed</dt>
+                <dt className="text-ink-faint">Speed:</dt>
                 <dd className="font-medium text-ink">{model.speed}</dd>
               </div>
               <div className="flex gap-1">
-                <dt>Download</dt>
-                <dd className="readout text-ink">{formatFileSize(model.size_mb)}</dd>
+                <dt className="text-ink-faint">Size:</dt>
+                <dd className="readout text-ink font-semibold">{formatFileSize(model.size_mb)}</dd>
               </div>
               <div className="flex gap-1">
                 <dt className="sr-only">Languages</dt>
                 <dd>
                   <Tooltip>
-                    <TooltipTrigger className="cursor-help underline decoration-dotted underline-offset-2">
+                    <TooltipTrigger className="cursor-help underline decoration-dotted underline-offset-2 text-ink-muted">
                       {languagesSummary(model.languages)}
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-80">
@@ -218,12 +222,19 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
 
           <div className="flex shrink-0 items-center gap-2">
             {available && !selected && (
-              <Button size="sm" onClick={() => onModelSelect?.(model.name)}>
-                Use
+              <Button
+                size="sm"
+                onClick={() => onModelSelect?.(model.name)}
+                className="h-7 text-xs px-3 bg-brand hover:bg-brand-hover text-brand-ink active:scale-[0.98] transition-transform"
+              >
+                Gunakan
               </Button>
             )}
             {available && selected && (
-              <span className="text-sm font-medium text-brand">Selected</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-brand-soft border border-brand/30 text-brand-soft-ink font-medium text-xs font-mono">
+                <CheckCircle2 className="size-3.5 text-brand" strokeWidth={2} />
+                <span>Terpilih</span>
+              </div>
             )}
             {!available && !downloading && (
               <Button
@@ -231,13 +242,21 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
                 variant="outline"
                 disabled={busy !== null}
                 onClick={() => download(model.name)}
+                className="h-7 text-xs px-3 active:scale-[0.98] transition-transform"
               >
-                {truncatedMb === null ? 'Download' : 'Download again'}
+                <DownloadIcon className="size-3 mr-1" strokeWidth={1.75} />
+                {truncatedMb === null ? 'Download' : 'Download Ulang'}
               </Button>
             )}
             {(available || truncatedMb !== null) && (
-              <Button size="sm" variant="ghost" onClick={() => remove(model.name)}>
-                Delete
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => remove(model.name)}
+                className="h-7 text-xs px-2 text-ink-faint hover:text-danger-ink hover:bg-danger-soft active:scale-[0.98] transition-colors"
+              >
+                <Trash2 className="size-3 mr-1" strokeWidth={1.75} />
+                Hapus
               </Button>
             )}
           </div>
@@ -299,18 +318,35 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
     );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {error && (
         <div className="rounded-md bg-danger-soft p-3 text-sm text-danger-ink">{error}</div>
       )}
 
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <p className="max-w-[52ch] text-xs text-ink-muted">
-          Quality is a tier from each model&apos;s measured error rate — the WER beside
-          it is that measurement. Speed is estimated from file size. A WER only ranks
-          against models measured on the same set; hover it to see which.
+      {/* Hardware Profile & Low-Spec Optimization */}
+      <HardwareProfileSelector
+        currentModel={selectedModel}
+        onModelSelected={(modelName) => onModelSelect?.(modelName)}
+        onRefreshModels={refresh}
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <p className="max-w-[50ch] text-xs text-ink-muted">
+          Pilih model ASR lokal di bawah, atau jelajahi ratusan model komunitas terbaru langsung dari Hugging Face Hub.
         </p>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {/* Hugging Face Hub Modal Trigger */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowHfHub(true)}
+            className="h-8 px-3 text-xs flex items-center gap-1.5 border-brand/40 bg-brand-soft hover:bg-brand-soft/80 text-brand-soft-ink font-medium active:scale-[0.98] transition-all"
+          >
+            <Layers className="size-3.5 text-brand" strokeWidth={1.75} />
+            <span>Hugging Face Hub</span>
+            <span className="text-3xs font-mono px-1 rounded bg-brand text-brand-ink">Explore</span>
+          </Button>
+
           <div className="relative">
             <Search
               aria-hidden
@@ -365,13 +401,47 @@ export default function TranscriptionModelManager({ selectedModel, onModelSelect
         listed.map(card)
       )}
 
-      <button
-        type="button"
-        className="text-xs text-ink-muted underline"
-        onClick={() => TranscribeAPI.openModelsFolder()}
-      >
-        Open models folder
-      </button>
+      <div className="pt-2 flex items-center justify-between border-t border-line text-xs text-ink-muted">
+        <button
+          type="button"
+          className="flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink transition-colors"
+          onClick={() => TranscribeAPI.openModelsFolder()}
+        >
+          <FolderOpen className="size-3.5" strokeWidth={1.75} />
+          <span>Buka Folder Model di File Explorer</span>
+        </button>
+        <span className="text-3xs font-mono text-ink-faint">
+          Model disimpan secara lokal &bull; Privasi 100%
+        </span>
+      </div>
+
+      {/* Hugging Face Hub Modal Dialog */}
+      {showHfHub && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative w-full max-w-3xl h-[85vh] max-h-[720px] rounded-xl border border-line bg-canvas shadow-float overflow-hidden flex flex-col scale-in-95 duration-150">
+            <button
+              onClick={() => {
+                setShowHfHub(false);
+                refresh();
+              }}
+              className="absolute top-3.5 right-4 z-10 size-7 rounded-md border border-line bg-panel hover:bg-sunken flex items-center justify-center text-ink-muted hover:text-ink active:scale-[0.95] transition-transform"
+              title="Tutup"
+            >
+              <X className="size-4" strokeWidth={1.75} />
+            </button>
+            <HuggingFaceModelHub
+              onModelDownloaded={(name) => {
+                refresh();
+                onModelSelect?.(name);
+              }}
+              onClose={() => {
+                setShowHfHub(false);
+                refresh();
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

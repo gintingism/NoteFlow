@@ -44,6 +44,64 @@ export interface ModelDownloadProgress {
   progress: number;
 }
 
+export interface HfModelItem {
+  id: string;
+  author?: string | null;
+  downloads: number;
+  likes: number;
+  pipeline_tag?: string | null;
+  tags: string[];
+  last_modified?: string | null;
+}
+
+export interface HfFileItem {
+  path: string;
+  size?: number | null;
+  type: string;
+}
+
+export type HardwareProfile = 'eco' | 'balanced' | 'max_quality';
+
+export interface HardwareProfileDetails {
+  id: HardwareProfile;
+  title: string;
+  badge: string;
+  description: string;
+  recommendedModel: string;
+  ramEstimate: string;
+  targetHardware: string;
+}
+
+export const HARDWARE_PROFILES: Record<HardwareProfile, HardwareProfileDetails> = {
+  eco: {
+    id: 'eco',
+    title: 'Eco / Low-Spec',
+    badge: 'Lightweight',
+    description: 'Ultra-ringan untuk laptop hemat daya, CPU dual/quad-core, atau RAM 4GB–8GB.',
+    recommendedModel: 'moonshine-streaming-tiny-q8',
+    ramEstimate: '< 150 MB RAM',
+    targetHardware: 'Low-end / Thin & Light laptop',
+  },
+  balanced: {
+    id: 'balanced',
+    title: 'Balanced',
+    badge: 'Standard',
+    description: 'Keseimbangan akurasi tinggi dan kecepatan untuk PC harian (RAM 8GB–16GB).',
+    recommendedModel: 'parakeet-tdt-0.6b-v3-q8',
+    ramEstimate: '~600 MB RAM',
+    targetHardware: 'Mid-range laptop / Desktop',
+  },
+  max_quality: {
+    id: 'max_quality',
+    title: 'Maximum Quality',
+    badge: 'High Accuracy',
+    description: 'Akurasi transkripsi tertinggi dengan model berukuran besar.',
+    recommendedModel: 'granite-speech-4.1-2b-plus-q8',
+    ramEstimate: '> 1.5 GB RAM',
+    targetHardware: 'High-spec PC / Dedicated GPU',
+  },
+};
+
 /**
  * Human-readable name for a catalog entry.
  *
@@ -209,5 +267,21 @@ export class TranscribeAPI {
 
   static async openModelsFolder(): Promise<void> {
     await invoke('open_models_folder');
+  }
+
+  static async searchHf(query: string, limit?: number): Promise<HfModelItem[]> {
+    return await invoke('transcribe_search_hf', { query, limit });
+  }
+
+  static async getHfRepoFiles(repo: string): Promise<HfFileItem[]> {
+    return await invoke('transcribe_get_hf_repo_files', { repo });
+  }
+
+  static async downloadHfModel(repo: string, filename: string, displayName?: string): Promise<void> {
+    await invoke('transcribe_download_hf_model', { repo, filename, displayName });
+  }
+
+  static async importLocalModel(sourcePath: string): Promise<string> {
+    return await invoke('transcribe_import_local_model', { sourcePath });
   }
 }

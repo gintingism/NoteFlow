@@ -194,6 +194,57 @@ impl TranscribeEngine {
             });
         }
 
+        // Also discover any custom GGUF models downloaded from Hugging Face or imported locally
+        let catalog_filenames: HashSet<&str> = TRANSCRIBE_MODEL_CATALOG.iter().map(|e| e.filename).collect();
+        if self.models_dir.exists() {
+            if let Ok(mut dir_entries) = tokio::fs::read_dir(&self.models_dir).await {
+                while let Ok(Some(entry)) = dir_entries.next_entry().await {
+                    let path = entry.path();
+                    if path.is_file() {
+                        let filename_os = entry.file_name();
+                        let filename = filename_os.to_string_lossy();
+                        if (filename.ends_with(".gguf") || filename.ends_with(".bin"))
+                            && !catalog_filenames.contains(filename.as_ref())
+                            && !filename.ends_with(".part")
+                        {
+                            let file_size = std::fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
+                            let size_mb = (file_size / (1024 * 1024)) as u32;
+                            let model_name = filename.trim_end_matches(".gguf").to_string();
+
+                            let status = if let ModelStatus::Downloading { progress } = self
+                                .available_models
+                                .read()
+                                .await
+                                .get(&model_name)
+                                .map(|m| m.status.clone())
+                                .unwrap_or(ModelStatus::Missing)
+                            {
+                                ModelStatus::Downloading { progress }
+                            } else {
+                                ModelStatus::Available
+                            };
+
+                            models.push(ModelInfo {
+                                name: model_name.clone(),
+                                path: path.clone(),
+                                size_mb,
+                                accuracy: "Community / HF".to_string(),
+                                wer: None,
+                                wer_set: String::new(),
+                                speed: "Custom".to_string(),
+                                status,
+                                description: format!("Custom Hugging Face model: {}", filename),
+                                streaming: false,
+                                languages: vec!["en".to_string()],
+                                recommended: false,
+                                diarizes: false,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
         let mut cache = self.available_models.write().await;
         cache.clear();
         for m in &models {
@@ -203,9 +254,25 @@ impl TranscribeEngine {
     }
 
     pub async fn load_model(&self, model_name: &str) -> Result<()> {
-        let entry = transcribe_model(model_name)
-            .ok_or_else(|| anyhow!("Unknown model: {}", model_name))?;
-        let path = self.models_dir.join(entry.filename);
+        let path = if let Some(entry) = transcribe_model(model_name) {
+            self.models_dir.join(entry.filename)
+        } else {
+            // Check direct filename or model_name.gguf in models_dir
+            let direct = self.models_dir.join(model_name);
+            if direct.exists() {
+                direct
+            } else {
+                let with_gguf = self.models_dir.join(format!("{}.gguf", model_name));
+                if with_gguf.exists() {
+                    with_gguf
+                } else {
+                    return Err(anyhow!(
+                        "Model '{}' is not downloaded. Download it from settings first.",
+                        model_name
+                    ));
+                }
+            }
+        };
         if !path.exists() {
             return Err(anyhow!(
                 "Model '{}' is not downloaded. Download it from settings first.",
@@ -388,10 +455,16 @@ impl TranscribeEngine {
         filename: &str,
         progress_callback: Option<Box<dyn Fn(DownloadProgress) + Send>>,
     ) -> Result<()> {
-        let url = format!(
-            "{}/{}/resolve/main/{}",
-            TRANSCRIBE_MODEL_BASE_URL, repo, filename
-        );
+        let url = if repo.starts_with("http://") || repo.starts_with("https://") {
+            format!("{}/{}", repo.trim_end_matches('/'), filename)
+        } else if repo.contains('/') {
+            format!("https://huggingface.co/{}/resolve/main/{}", repo.trim(), filename)
+        } else {
+            format!(
+                "{}/{}/resolve/main/{}",
+                TRANSCRIBE_MODEL_BASE_URL, repo, filename
+            )
+        };
         let file_path = self.models_dir.join(filename);
         info!("Downloading {} -> {}", url, file_path.display());
 
