@@ -2,7 +2,7 @@
 name = "conversationaly"
 version = "1.4.1"
 description = "Noteflow: Ultra-lightweight local-first AI meeting & speech assistant"
-authors = ["Neguisa Ginting <gintingism>", "Sujith S"]
+authors = ["Bonifasius Toto Neguisa Ginting <gintingism>", "Sujith S"]
 license = "MIT"
 repository = "https://github.com/gintingism/NoteFlow"
 edition.workspace = true

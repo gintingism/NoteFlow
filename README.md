@@ -109,7 +109,7 @@ pnpm run tauri:dev:vulkan
 
 ## History and Credits
 
-* Maintained and updated by Neguisa Ginting (@gintingism).
+* Maintained and updated by Bonifasius Toto Neguisa Ginting (@gintingism).
 * Forked from Conversationaly by Sujith S, which was originally based on Meetily by Zackriya Solutions.
 * Audio transcription powered by transcribe.cpp and ggml.
 * Local summary helper powered by llama.cpp.

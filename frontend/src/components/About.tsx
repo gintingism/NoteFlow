@@ -102,7 +102,7 @@ export function About() {
             }
             className="font-semibold text-ink underline underline-offset-2 transition-colors duration-fast hover:text-brand"
           >
-            Neguisa Ginting (@gintingism)
+            Bonifasius Toto Neguisa Ginting (@gintingism)
           </button>.
         </p>
         <p>
