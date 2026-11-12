@@ -130,7 +130,14 @@ impl<R: Runtime> TranscriptSink for TauriSink<R> {
     }
 
     fn warn(&mut self, message: &str) {
-        let _ = self.app.emit("transcription-warning", message.to_string());
+        let user_friendly = if message.contains("status 8") || message.contains("backend error") {
+            format!(
+                "Akselerasi GPU mengalami kendala memori/driver (status 8). Disarankan memilih model lebih ringan seperti Moonshine Streaming Tiny (48MB) di Profil Hardware: Eco Mode, atau gunakan build versi CPU."
+            )
+        } else {
+            message.to_string()
+        };
+        let _ = self.app.emit("transcription-warning", user_friendly);
     }
 }
 

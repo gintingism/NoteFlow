@@ -11,6 +11,14 @@ on:
           - debug
           - release
         default: release
+      acceleration:
+        description: 'Inference acceleration backend (cpu is ultra-stable; vulkan is for dedicated GPUs)'
+        required: true
+        type: choice
+        options:
+          - cpu
+          - vulkan
+        default: cpu
       sign-build:
         description: 'Sign the build'
         required: true
@@ -73,6 +81,20 @@ jobs:
             echo "profile=release" >> "$GITHUB_OUTPUT"
             echo "args=" >> "$GITHUB_OUTPUT"
             echo "Build profile: release"
+          fi
+
+      - name: Determine acceleration profile
+        id: accel-profile
+        shell: bash
+        run: |
+          if [[ "${{ github.event.inputs.acceleration }}" == "vulkan" ]]; then
+            echo "features=--features vulkan" >> "$GITHUB_OUTPUT"
+            echo "is_vulkan=true" >> "$GITHUB_OUTPUT"
+            echo "Acceleration backend: Vulkan (GPU)"
+          else
+            echo "features=" >> "$GITHUB_OUTPUT"
+            echo "is_vulkan=false" >> "$GITHUB_OUTPUT"
+            echo "Acceleration backend: CPU (Ultra-stable, zero status 8 errors)"
           fi
 
       - name: Setup DigiCert Environment
@@ -512,6 +534,7 @@ jobs:
           key: windows-x64-vulkan-v3
 
       - name: Install Vulkan SDK
+        if: ${{ steps.accel-profile.outputs.is_vulkan == 'true' }}
         shell: pwsh
         # The official installer, not humbletim/install-vulkan-sdk: that one 7z-extracts
         # the installer and skips share/cmake, so ggml's find_package(SPIRV-Headers) fails.
@@ -522,6 +545,7 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\Bin"
 
       - name: Verify and Configure Vulkan SDK
+        if: ${{ steps.accel-profile.outputs.is_vulkan == 'true' }}
         shell: pwsh
         run: |
           Write-Host "=== Vulkan SDK Configuration ==="
@@ -590,6 +614,7 @@ jobs:
           Write-Host "=== Vulkan SDK Configuration Complete ==="
 
       - name: Copy Vulkan runtime for bundling
+        if: ${{ steps.accel-profile.outputs.is_vulkan == 'true' }}
         shell: pwsh
         run: |
           # Create runtime directory
@@ -700,7 +725,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         with:
           projectPath: frontend
-          args: --target x86_64-pc-windows-msvc --features vulkan ${{ steps.build-profile.outputs.args }}
+          args: --target x86_64-pc-windows-msvc ${{ steps.accel-profile.outputs.features }} ${{ steps.build-profile.outputs.args }}
 
       - name: Verify build artifacts
         shell: bash

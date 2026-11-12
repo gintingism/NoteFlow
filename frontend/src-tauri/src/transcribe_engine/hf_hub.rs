@@ -44,28 +44,29 @@ pub async fn search_hf_models(query: &str, limit: usize) -> Result<Vec<HfModelIt
     let trimmed = query.trim();
     let limit_str = limit.to_string();
 
-    let request = if trimmed.is_empty() {
+    let url = if trimmed.is_empty() {
         // Default: discover popular ASR / transcribe GGUF models
-        let url = format!("{}/models", HF_API_BASE);
-        client.get(&url).query(&[
-            ("filter", "gguf"),
-            ("pipeline_tag", "automatic-speech-recognition"),
-            ("sort", "downloads"),
-            ("direction", "-1"),
-            ("limit", &limit_str),
-        ])
+        format!(
+            "{}/models?filter=gguf&pipeline_tag=automatic-speech-recognition&sort=downloads&direction=-1&limit={}",
+            HF_API_BASE, limit_str
+        )
     } else {
-        let url = format!("{}/models", HF_API_BASE);
-        client.get(&url).query(&[
-            ("search", trimmed),
-            ("filter", "gguf"),
-            ("limit", &limit_str),
-            ("full", "false"),
-        ])
+        let encoded: String = trimmed
+            .chars()
+            .map(|c| match c {
+                ' ' => '+',
+                'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | '.' | '~' => c,
+                _ => '+',
+            })
+            .collect();
+        format!(
+            "{}/models?search={}&filter=gguf&limit={}&full=false",
+            HF_API_BASE, encoded, limit_str
+        )
     };
 
-    info!("Searching Hugging Face models (query: '{}')", trimmed);
-    let resp = request.send().await?;
+    info!("Searching Hugging Face models (url: '{}')", url);
+    let resp = client.get(&url).send().await?;
     if !resp.status().is_success() {
         return Err(anyhow!("Hugging Face API returned error status: {}", resp.status()));
     }
