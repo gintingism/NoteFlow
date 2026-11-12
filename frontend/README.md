@@ -61,8 +61,8 @@ A modern desktop application for recording, transcribing, and analyzing meetings
 
 2. Clone the repository and navigate to the frontend directory:
    ```bash
-   git clone https://github.com/gintingism/conversationaly
-   cd conversationaly/frontend
+   git clone https://github.com/gintingism/NoteFlow
+   cd NoteFlow/frontend
    ```
   
 
@@ -81,8 +81,8 @@ A modern desktop application for recording, transcribing, and analyzing meetings
 
 2. Clone the repository and navigate to the frontend directory:
    ```cmd
-   git clone https://github.com/gintingism/conversationaly
-   cd conversationaly/frontend
+   git clone https://github.com/gintingism/NoteFlow
+   cd NoteFlow/frontend
    ```
 
 3. Install dependencies:

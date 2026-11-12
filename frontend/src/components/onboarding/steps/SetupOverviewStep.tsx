@@ -98,7 +98,7 @@ export function SetupOverviewStep() {
           </Button>
           <div className="text-center">
             <a
-              href="https://github.com/gintingism/conversationaly/issues"
+              href="https://github.com/gintingism/NoteFlow/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-ink-muted hover:underline"

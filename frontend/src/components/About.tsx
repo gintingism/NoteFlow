@@ -97,7 +97,7 @@ export function About() {
           <button
             onClick={() =>
               invoke('open_external_url', {
-                url: 'https://github.com/gintingism/conversationaly',
+                url: 'https://github.com/gintingism/NoteFlow',
               }).catch(console.error)
             }
             className="font-semibold text-ink underline underline-offset-2 transition-colors duration-fast hover:text-brand"

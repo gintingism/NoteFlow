@@ -2,7 +2,7 @@
   <h1>Noteflow</h1>
   <p><strong>The Ultra-Lightweight, Local-First AI Meeting & Speech Assistant</strong></p>
   <p>
-    <a href="https://github.com/gintingism/conversationaly/actions/workflows/build-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/gintingism/conversationaly/build-windows.yml?label=Windows%20Build&logo=windows" alt="Windows Build"></a>
+    <a href="https://github.com/gintingism/NoteFlow/actions/workflows/build-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/gintingism/NoteFlow/build-windows.yml?label=Windows%20Build&logo=windows" alt="Windows Build"></a>
     <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
     <img src="https://img.shields.io/badge/Hardware-4GB%20RAM%20Friendly-success" alt="RAM Friendly">
     <img src="https://img.shields.io/badge/Privacy-100%25%20Offline-green" alt="Offline">
@@ -91,7 +91,7 @@ Noteflow automatically adapts to your system resources. You can switch profiles 
 ### Prebuilt Windows Binary (CPU-Optimized, Rock-Solid)
 Ready-to-use Windows installers are automatically compiled via GitHub Actions:
 
-1. Visit [GitHub Actions Run #43173940468](https://github.com/gintingism/conversationaly/actions/runs/43173940468).
+1. Visit [GitHub Actions Run #43173940468](https://github.com/gintingism/NoteFlow/actions/runs/43173940468).
 2. Scroll to the **Artifacts** section at the bottom.
 3. Download `conversationaly-windows-x64-release-1.4.1.zip`.
 4. Extract the archive and execute the `.msi` or `.exe` installer.
@@ -126,8 +126,8 @@ Ready-to-use Windows installers are automatically compiled via GitHub Actions:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/gintingism/conversationaly.git
-cd conversationaly/frontend
+git clone https://github.com/gintingism/NoteFlow.git
+cd NoteFlow/frontend
 
 # 2. Install frontend dependencies
 pnpm install
