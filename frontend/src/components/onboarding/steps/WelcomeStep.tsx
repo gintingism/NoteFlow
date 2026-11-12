@@ -24,7 +24,7 @@ export function WelcomeStep() {
 
   return (
     <OnboardingContainer
-      title="Welcome to Conversationaly"
+      title="Welcome to Noteflow"
       description="Record. Transcribe. Summarize. All on your device."
       step={1}
       hideProgress={true}

@@ -12,7 +12,7 @@
     "app": {
         "windows": [
             {
-                "title": "Conversationaly",
+                "title": "Noteflow",
                 "width": 1100,
                 "height": 700,
                 "minWidth": 720,

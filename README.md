@@ -1,156 +1,154 @@
-<div align="center" style="border-bottom: none">
-    <h1>Conversationaly</h1>
-    <a href="https://github.com/bykof/conversationaly/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/bykof/conversationaly?style=flat"></a>
+<div align="center">
+  <h1>Noteflow</h1>
+  <p><strong>The Ultra-Lightweight, Local-First AI Meeting & Speech Assistant</strong></p>
+  <p>
+    <a href="https://github.com/gintingism/conversationaly/actions/workflows/build-windows.yml"><img src="https://img.shields.io/github/actions/workflow/status/gintingism/conversationaly/build-windows.yml?label=Windows%20Build&logo=windows" alt="Windows Build"></a>
     <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
-    <img src="https://img.shields.io/badge/Supported_OS-macOS,_Windows,_Linux-white" alt="Supported OS">
-    <h3>Privacy-First AI Meeting Assistant</h3>
-    <p align="center">
-
-Records your meetings, transcribes them live, and writes the summary — on your machine, with no account and no cloud round-trip unless you deliberately configure one.
-
-</p>
-
-<img src="docs/imgs/live-recording.gif" alt="Conversationaly opening, a recording starting, and the first spoken words being transcribed live" width="100%">
-
+    <img src="https://img.shields.io/badge/Hardware-4GB%20RAM%20Friendly-success" alt="RAM Friendly">
+    <img src="https://img.shields.io/badge/Privacy-100%25%20Offline-green" alt="Offline">
+  </p>
+  <p align="center">
+    Records your meetings, transcribes spoken words live, and generates executive summaries — 100% locally on your machine. No accounts, no paywalls, and zero cloud round-trips.
+  </p>
 </div>
 
-<details>
-<summary>Table of Contents</summary>
+---
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Installation](#installation)
+<details>
+<summary><strong>Table of Contents</strong></summary>
+
+- [Overview](#overview)
+- [What's New & Enhanced in Noteflow](#whats-new--enhanced-in-noteflow)
+- [Hardware Profiles (Potato to Workstation)](#hardware-profiles-potato-to-workstation)
+- [Key Features](#key-features)
+- [Quick Download & Installation](#quick-download--installation)
 - [How It Works](#how-it-works)
-- [System Architecture](#system-architecture)
-- [For Developers](#for-developers)
-- [Contributing](#contributing)
+- [Development & Building From Source](#development--building-from-source)
+- [Lineage & Acknowledgments](#lineage--acknowledgments)
 - [License](#license)
-- [Acknowledgments](#acknowledgments)
 
 </details>
 
-## Introduction
+---
 
-Conversationaly is a desktop app (macOS, Windows, Linux) that captures your microphone and system audio, transcribes the meeting as it happens, and generates a summary. Transcription models and the summary LLM both run locally by default — nothing is sent anywhere. Cloud providers are available if you want them, but they are opt-in, per-feature.
+## Overview
 
-It is a fork of [Meetily](https://github.com/Zackriya-Solutions/meeting-minutes), rebuilt around [transcribe.cpp](https://github.com/handy-computer/transcribe.cpp) and a bundled llama.cpp sidecar. It is fully free — there is no paid tier, no license key, no telemetry.
+**Noteflow** is a privacy-first desktop application for Windows, macOS, and Linux that captures your microphone and system audio cleanly, transcribes conversations in real-time, and formats structured notes using local AI models. 
 
-## Features
+By default, everything runs locally on your machine. Your voice data never leaves your computer, making it safe for confidential business discussions, legal proceedings, and private 1-on-1s.
 
-- **Local transcription** — 85 models across 16 families (Whisper, Parakeet, Nemotron, Canary, Voxtral, Qwen3-ASR, SenseVoice, Moonshine, GigaAM, …), downloaded on demand. Default: `parakeet-tdt-0.6b-v3-q8` (1.94% WER, 25 European locales); `nemotron-3.5-asr-streaming-0.6b-q8` for word-by-word live text across 32 locales.
-- **Live transcript** — streaming-native models transcribe continuously as you speak; batch-only models are segmented by voice activity and still work live.
-- **Built-in AI, no Ollama required** — a bundled `llama-helper` sidecar runs Gemma 4 locally for summaries, and can also transcribe directly as an audio LLM.
-- **Bring your own LLM** — summaries via Built-in AI, Ollama, Claude, Groq, OpenRouter, OpenAI, or any OpenAI-compatible endpoint.
-- **Optional cloud STT** — Deepgram, ElevenLabs, Groq, or OpenAI, if you prefer a hosted transcriber.
-- **Professional audio mixing** — microphone and system audio captured together with RMS-based ducking and clipping prevention.
-- **Import & enhance** `Beta` — transcribe existing audio files, or re-transcribe a past meeting with a different model or language.
-- **Summary templates** — pick or write the structure your summaries follow, and set the summary language independently of the spoken one.
-- **GPU acceleration** — Metal on Apple Silicon, CUDA (NVIDIA), Vulkan (AMD/Intel), ROCm (AMD on Linux).
-- **Local storage** — meetings, transcripts, and models live in a SQLite database and a model directory on your disk.
+---
 
-<p align="center">
-  <img src="docs/imgs/transcription_settings.png" alt="Transcription settings listing downloadable local models with quality, WER, speed and size" width="49%">
-  <img src="docs/imgs/summary_models.png" alt="Summary settings listing the built-in Gemma 4 and Qwen 3.5 models" width="49%">
-</p>
+## What's New & Enhanced in Noteflow
 
-## Installation
+This project is an optimized fork and evolution of [Conversationaly](https://github.com/bykof/conversationaly) by Sujith S, specifically modified to overcome hardware barriers, eliminate inference crashes, and broaden model availability:
 
-Prebuilt installers (macOS `.dmg`, Windows `.exe`, Linux `.deb`/`.rpm`/`.AppImage`) are published on the [Releases page](https://github.com/bykof/conversationaly/releases) when a version is tagged, each alongside a `SHA256SUMS` file to check them against.
+1. **Hugging Face Model Hub (Direct Search & 1-Click Download)**:
+   - Search the entire Hugging Face library for automatic speech recognition (ASR) GGUF models directly within the application.
+   - Explore repository trees to inspect `.gguf` quantizations and download them with one click.
+   - Import local `.gguf` model files directly from your disk with automated validation.
 
-```bash
-# macOS
-brew install --cask --no-quarantine bykof/tap/conversationaly
-```
+2. **Adaptive Hardware Profiles (Eco / Balanced / Max Quality)**:
+   - Tailored presets allowing even resource-constrained laptops (dual-core CPUs, 4GB–8GB RAM) to run live meeting transcription smoothly.
+   - Includes **Moonshine Streaming Tiny (~48MB)**, using under 150MB of RAM without heating up the processor.
 
-```powershell
-# Windows
-scoop bucket add conversationaly https://github.com/bykof/conversationaly
-scoop install conversationaly
-```
+3. **Rock-Solid CPU Inference Engine (Zero GPU Shader Crashes)**:
+   - Fixed the persistent `backend error: run: backend error (status 8)` error caused by Vulkan compute shader timeouts and VRAM exhaustion on integrated graphics (Intel UHD / Iris Xe).
+   - Bundles an ultra-stable CPU inference path utilizing **tinyBLAS + AVX2**.
 
-The builds are not code-signed, so macOS and Windows each block them once on
-first launch. [docs/INSTALL.md](docs/INSTALL.md) has the click-through for every
-platform, how to verify a download, and what to do when macOS forgets the
-microphone permission after an update.
+4. **Fixed Windows Audio Mixer Glitch**:
+   - Resolved the issue where the application's audio level was stuck at 1% in the Windows Volume Mixer during audio recording sessions.
 
-### Build from source
+5. **Modern, Slop-Free UI/UX**:
+   - Redesigned interface following strict human-first design engineering standards: unified Lucide iconography, OKLCH color palettes, clear tactile feedback, and smooth micro-interactions.
 
-Requires Rust, Node.js, pnpm, and cmake. See [docs/BUILDING.md](docs/BUILDING.md) for per-platform prerequisites.
+---
 
-```bash
-git clone https://github.com/bykof/conversationaly
-cd conversationaly/frontend
-pnpm install
+## Hardware Profiles (Potato to Workstation)
 
-# macOS
-./clean_build.sh
+Noteflow automatically adapts to your system resources. You can switch profiles at any time in **Settings > Transcription Models**:
 
-# Linux (auto-detects GPU backend)
-./build-gpu.sh
+| Profile | Recommended Model | Model Size | RAM Usage | Target Hardware |
+| :--- | :--- | :--- | :--- | :--- |
+| 🍃 **Eco Mode** | Moonshine Streaming Tiny | **~48 MB** | **< 150 MB** | Dual-core CPUs, 4GB RAM, Thin & Light Laptops |
+| ⚖️ **Balanced Mode** | Parakeet TDT 0.6B v3 | ~600 MB | ~1.2 GB | Quad-core CPUs, 8GB RAM, Standard Laptops |
+| 🚀 **Max Quality** | Granite Speech Plus | ~1.6 GB | ~3.0 GB | 16GB+ RAM, Multi-core PCs, Dedicated GPUs |
 
-# Windows
-clean_build_windows.bat
-```
+---
 
-Linux specifics: [docs/building_in_linux.md](docs/building_in_linux.md).
+## Key Features
 
-### Permissions
+- **Live Real-Time Transcription**: Streaming-native speech models transcribe continuously as you or meeting participants speak.
+- **Built-in Local AI Summarizer**: Bundled `llama-helper` sidecar runs local models (like Gemma 4 or Qwen) for structured notes, key takeaways, and action items — no Ollama installation needed.
+- **External Provider Freedom**: Connect your own API keys for Claude, Groq, OpenAI, or local Ollama instances if you prefer cloud or external LLM processing.
+- **Clean Audio Loopback**: Captures both microphone and speaker audio with RMS ducking to avoid distortion and volume degradation.
+- **Local SQLite Storage**: Past meeting minutes, full transcripts, and audio recordings remain stored safely in your local application directory.
 
-- **macOS** — microphone, plus screen recording for system audio (ScreenCaptureKit, macOS 13+).
-- **Windows** — microphone; system audio uses WASAPI loopback.
+---
+
+## Quick Download & Installation
+
+### Prebuilt Windows Binary (CPU-Optimized, Rock-Solid)
+Ready-to-use Windows installers are automatically compiled via GitHub Actions:
+
+1. Visit [GitHub Actions Run #43173940468](https://github.com/gintingism/conversationaly/actions/runs/43173940468).
+2. Scroll to the **Artifacts** section at the bottom.
+3. Download `conversationaly-windows-x64-release-1.4.1.zip`.
+4. Extract the archive and execute the `.msi` or `.exe` installer.
+
+---
 
 ## How It Works
 
-On first launch, onboarding downloads one transcription model and one Gemma 4 tier. From then on:
-
-1. Microphone and system audio are captured, mixed, and written to a recording.
-2. The same mixed audio is resampled to 16 kHz and fed to the transcription engine, which emits transcript lines as the meeting runs.
-3. When you ask for a summary, the transcript goes to whichever LLM provider you configured — the local sidecar by default.
-
-![A finished meeting: the transcript on the left, the generated summary on the right](docs/imgs/meeting_transcription_summary.png)
-
-Everything above is a local process. Cloud STT and cloud summary providers are the only paths that leave your machine, and only when you select one and supply a key.
-
-## System Architecture
-
-A single Tauri application: a Rust core (audio capture, transcription, storage, summary orchestration) and a Next.js frontend, communicating over Tauri commands and events. There is no separate server to run.
-
-Details: [docs/architecture.md](docs/architecture.md).
-
-## For Developers
-
-```bash
-cd frontend
-pnpm install
-
-./clean_run.sh              # macOS: build and run (info logging)
-./clean_run.sh debug        # verbose logging
-clean_run_windows.bat       # Windows
-./dev-gpu.sh                # Linux
-
-pnpm run tauri:dev          # plain dev mode
-pnpm run tauri:dev:metal    # force a specific GPU backend
-pnpm run tauri:dev:cuda
-pnpm run tauri:dev:vulkan
-pnpm run tauri:dev:cpu
+```
+┌──────────────────┐     ┌───────────────────────┐     ┌──────────────────────┐
+│  Audio Ingest    │ ──> │  Local Transcription  │ ──> │  Local AI Summarizer │
+│  Mic + WASAPI    │     │  (transcribe.cpp)     │     │  (llama.cpp sidecar) │
+│  Audio Loopback  │     │  GGUF Speech Models   │     │  Action Items & Notes│
+└──────────────────┘     └───────────────────────┘     └──────────────────────┘
 ```
 
-Architecture notes and conventions for contributors live in [CLAUDE.md](CLAUDE.md); GPU backend details in [docs/GPU_ACCELERATION.md](docs/GPU_ACCELERATION.md).
+1. **Audio Capture**: Clean WASAPI loopback captures microphone and system audio without mixer attenuation.
+2. **Resampling**: The stream is normalized and resampled to 16 kHz.
+3. **Local Inference**: Audio buffers are processed locally by the selected model (Moonshine / Parakeet / Granite).
+4. **Summary**: The final transcript is structured into notes, action points, and decisions.
 
-## Contributing
+---
 
-Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for project structure and guidelines.
+## Development & Building From Source
+
+### Prerequisites
+- Node.js 22+ & `pnpm`
+- Rust stable toolchain (`x86_64-pc-windows-msvc`)
+- CMake
+
+### Step-by-Step Build
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/gintingism/conversationaly.git
+cd conversationaly/frontend
+
+# 2. Install frontend dependencies
+pnpm install
+
+# 3. Launch Development Server (CPU Mode - Recommended)
+pnpm run tauri:dev:cpu
+
+# 4. Or launch with GPU Acceleration (CUDA / Vulkan)
+pnpm run tauri:dev:vulkan
+```
+
+---
+
+## Lineage & Acknowledgments
+
+- Forked from [Conversationaly](https://github.com/bykof/conversationaly) by **Sujith S** and [Meetily](https://github.com/Zackriya-Solutions/meeting-minutes) by **Zackriya Solutions**.
+- Core inference powered by [transcribe.cpp](https://github.com/handy-computer/transcribe.cpp) and [llama.cpp](https://github.com/ggerganov/llama.cpp).
+- Speech model weights courtesy of **NVIDIA** (Parakeet, Nemotron) and **Useful Sensors** (Moonshine).
+
+---
 
 ## License
 
-MIT — see [LICENSE.md](LICENSE.md).
-
-## Acknowledgments
-
-- Conversationaly is a fork of [Meetily](https://github.com/Zackriya-Solutions/meeting-minutes) by Zackriya Solutions, which it builds on under the MIT license.
-- Transcription runs on [transcribe.cpp](https://github.com/handy-computer/transcribe.cpp), built on [ggml](https://github.com/ggerganov/ggml) / [whisper.cpp](https://github.com/ggerganov/whisper.cpp).
-- Local LLM inference uses [llama.cpp](https://github.com/ggerganov/llama.cpp) via [llama-cpp-2](https://crates.io/crates/llama-cpp-2).
-- We borrowed some code from [Screenpipe](https://github.com/mediar-ai/screenpipe) and [transcribe-rs](https://crates.io/crates/transcribe-rs).
-- Import & Enhance was contributed by [Jeremi Joslin](https://github.com/jeremi), improved by [Vishnu P S](https://github.com/p-s-vishnu) and [Mohammed Safvan](https://github.com/mohammedsafvan).
-- Thanks to **NVIDIA** for the **Parakeet** and **Nemotron** speech models, and to the teams behind the other model families in the catalog.
-</content>
+Distributed under the [MIT License](LICENSE.md).

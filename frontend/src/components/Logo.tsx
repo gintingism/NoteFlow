@@ -54,7 +54,7 @@ export function Wordmark({ className }: { className?: string }) {
         className
       )}
     >
-      Conversationaly
+      Noteflow
     </span>
   );
 }
@@ -71,7 +71,7 @@ const Logo = React.forwardRef<HTMLButtonElement, LogoProps>(
       <DialogTrigger asChild>
         <button
           ref={ref}
-          title="About Conversationaly"
+          title="About Noteflow"
           className={cn(
             'group flex items-center rounded-md text-ink transition-colors duration-fast',
             'hover:bg-ink/5 active:bg-ink/10',
@@ -82,12 +82,12 @@ const Logo = React.forwardRef<HTMLButtonElement, LogoProps>(
         >
           <Mark live={live} className="h-4 w-4 shrink-0 text-brand" />
           {!isCollapsed && <Wordmark className="text-base" />}
-          <VisuallyHidden>About Conversationaly</VisuallyHidden>
+          <VisuallyHidden>About Noteflow</VisuallyHidden>
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <VisuallyHidden>
-          <DialogTitle>About Conversationaly</DialogTitle>
+          <DialogTitle>About Noteflow</DialogTitle>
         </VisuallyHidden>
         <About />
       </DialogContent>
