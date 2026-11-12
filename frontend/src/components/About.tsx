@@ -11,11 +11,11 @@ import { toast } from 'sonner';
 
 /** What the product actually guarantees, as facts rather than pitch. */
 const FACTS = [
-  ['Audio', 'Captured and mixed on this machine without mixer attenuation'],
-  ['Transcription', 'transcribe.cpp with Eco, Balanced & Max presets'],
-  ['Model Hub', 'Direct Hugging Face search & 1-click GGUF download'],
-  ['Summaries', 'Local Gemma/Qwen sidecar; external providers opt-in'],
-  ['Storage', 'Local SQLite database & audio files you own 100%'],
+  ['Audio', 'Captured and mixed on this machine without volume loss'],
+  ['Transcription', 'transcribe.cpp with Eco, Balanced, and Quality presets'],
+  ['Model Hub', 'Search Hugging Face models and download GGUFs directly'],
+  ['Summaries', 'Local Gemma and Qwen models, with optional cloud providers'],
+  ['Storage', 'Local SQLite database and audio files that you control'],
 ] as const;
 
 export function About() {

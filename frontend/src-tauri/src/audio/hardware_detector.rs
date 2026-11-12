@@ -107,13 +107,42 @@ impl HardwareProfile {
 
     /// Detect available system memory in GB
     fn detect_memory_gb() -> u8 {
-        // Simple memory detection - could be enhanced with system-specific calls
-        match std::env::var("MEMORY_GB") {
-            Ok(mem_str) => mem_str.parse().unwrap_or(8),
-            Err(_) => {
-                // Default estimates based on common configurations
-                8 // Conservative default
+        if let Ok(mem_str) = std::env::var("MEMORY_GB") {
+            if let Ok(val) = mem_str.parse() {
+                return val;
             }
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            use windows::Win32::System::SystemInformation::{GlobalMemoryStatusEx, MEMORYSTATUSEX};
+            let mut status = MEMORYSTATUSEX {
+                dwLength: std::mem::size_of::<MEMORYSTATUSEX>() as u32,
+                ..Default::default()
+            };
+            unsafe {
+                if GlobalMemoryStatusEx(&mut status).is_ok() {
+                    let total_bytes = status.ullTotalPhys;
+                    let gb = (total_bytes / (1024 * 1024 * 1024)) as u8;
+                    if gb > 0 {
+                        return gb;
+                    }
+                }
+            }
+        }
+
+        8 // Conservative default
+    }
+
+    /// Calculate optimal thread count for audio inference without starving UI or audio capture
+    pub fn optimal_compute_threads(&self) -> usize {
+        let cores = self.cpu_cores as usize;
+        if cores <= 2 {
+            1
+        } else if cores <= 4 {
+            cores.saturating_sub(1)
+        } else {
+            (cores.saturating_sub(2)).min(8)
         }
     }
 
